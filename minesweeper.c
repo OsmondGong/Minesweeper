@@ -95,6 +95,183 @@ int main(void) {
                 }
                 printf("There are %d mine(s) in column %d\n", num, col);
             }
+            else if (command == DETECT_SQUARE) {
+                int row, col, size, row_size, col_size;
+
+                scanf("%d", &row);
+                scanf("%d", &col);
+                scanf("%d", &size);
+
+                int mine_count = 0;
+
+                if (size % 2 == 0 && size > 0) {
+                    size--;
+                }
+                
+                int col_edge = 0;
+                if (col == 0) {
+                    col_size = size / 2 + 1;
+                    col_edge = 1;
+                }
+                else if (col == 7) {
+                    col_size = size / 2 + 1;
+                    col = col - size / 2;
+                }
+                else {
+                    col = col - size / 2;
+                    col_size = size;
+                }
+
+                int row_edge = 0;
+                if (row == 0) {
+                    row_size = size / 2 + 1;
+                    row_edge = 1;
+                }                
+                else if (row == 7) {
+                    row_size = size / 2 + 1;
+                    row = row - size / 2;
+                }
+                else {
+                    row = row - size / 2;
+                    row_size = size;
+                }
+
+                if (size >= 0) {
+                    int i = 0;
+                    while (i < row_size) {
+                        int j = 0;
+                        while (j < col_size){
+                            if (minefield[row][col] == HIDDEN_MINE) {
+                                mine_count++;
+                            }
+                            j++;
+                            col++;
+                        }
+                        col = col - col_size;
+                        i++;
+                        row++;
+                    }
+                    row = row - row_size;
+                    if (row_edge == 0) {
+                        row = row + size/2;
+                    }
+                    if (col_edge == 0) {
+                        col = col + size/2;
+                    }
+                }
+                printf("There are %d mine(s) in the square centered at row %d, column %d of size %d\n", mine_count, row, col, size);
+            }
+            else if (command == REVEAL_SQUARE) {
+                int row, col, col_size, row_size;
+
+                scanf("%d", &row);
+                scanf("%d", &col);
+
+                int size = 3;
+                
+                if (minefield[row][col] == HIDDEN_MINE) {
+                    win = -1;
+                    printf ("Game over\n");
+                }
+                
+                int col_edge = 0;
+                if (col == 0) {
+                    col_size = size / 2 + 1;
+                    col_edge = 1;
+                }
+                else if (col == 7) {
+                    col_size = size / 2 + 1;
+                    col = col - size / 2;
+                }
+                else {
+                    col = col - size / 2;
+                    col_size = size;
+                }
+
+                int row_edge = 0;
+                if (row == 0) {
+                    row_size = size / 2 + 1;
+                    row_edge = 1;
+                }                
+                else if (row == 7) {
+                    row_size = size / 2 + 1;
+                    row = row - size / 2;
+                }
+                else {
+                    row = row - size / 2;
+                    row_size = size;
+                }
+
+                int scenario = 0;
+
+                int i = 0;
+                while (i < row_size) {
+                    int j = 0;
+                    while (j < col_size){
+                        if (minefield[row][col] == HIDDEN_MINE) {
+                            scenario = 1;
+                        }
+                        j++;
+                        col++;
+                    }
+                    col = col - col_size;
+                    i++;
+                    row++;
+                }
+                row = row - row_size;
+
+                if (scenario == 1) {
+                    if (row_edge == 0) {
+                        row = row + size/2;
+                    }
+
+                    if (col_edge == 0) {
+                        col = col + size/2;
+                    }
+                    if (minefield[row][col] == HIDDEN_SAFE){
+                        minefield[row][col] = VISIBLE_SAFE;
+                    }
+                }
+
+                else {
+                    i = 0;
+                    while (i < row_size) {
+                        int j = 0;
+                        while (j < col_size){
+                            minefield[row][col] = VISIBLE_SAFE;
+                            j++;
+                            col++;
+                        }
+                        col = col - col_size;
+                        i++;
+                        row++;
+                    }
+                    row = row - row_size;
+
+                    if (row_edge == 0) {
+                        row = row + size/2;
+                    }
+                    if (col_edge == 0) {
+                        col = col + size/2;
+                    }
+                }
+                int win_check = 1;
+                int k = 0;
+                while (k < SIZE) {
+                    int l = 0;
+                    while (l < SIZE){
+                        if (minefield[k][l] == HIDDEN_SAFE) {
+                            win_check = 0;
+                        }
+                        l++;
+                    }
+                    k++;
+                }
+                if (win_check == 1) {
+                    printf("Game Won!\n");
+                    win = 1;
+                }
+            }
             print_debug_minefield(minefield);
         }
         else {
