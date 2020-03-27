@@ -2,11 +2,12 @@
 // minesweeper.c
 //
 // This program was written by Osmond Gong (z5293467)
-// on 26/03/2020
+// on 28/03/2020
 //
 // Version 1.0.0 (2020-03-08): Assignment released.
 // Version 1.0.1 (2020-03-08): Fix punctuation in comment.
 // Version 1.0.2 (2020-03-08): Fix second line of header comment to say minesweeper.c
+// Minesweeper Game
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,7 @@ int win_check(int minefield[SIZE][SIZE]);
 void  gameplay(int minefield[SIZE][SIZE], int win);
 void reveal_radial(int minefield[SIZE][SIZE], int row, int col);
 void prints_mine_arround_square(int minefield[SIZE][SIZE], int i, int j);
+void turn_one_square(int minefield[SIZE][SIZE], int row, int col);
 void turn_one_radial(int minefield[SIZE][SIZE], int row, int col);
 
 int main(void) {
@@ -86,138 +88,124 @@ int main(void) {
     while (win == 0) {
         int command = 0;
         scanf("%d", &command);
-        // EOF (Ctrl+D) and any input that is not 1 to 7 will end the game when entered
-        if (command > 0) {
-            // Ensures only 3 hints will be given
-            if (hint == 3 && command < 4) {
-                int row, col, size;
-                if (command != DETECT_COL) {
-                    scanf("%d", &row);
-                }
-                if (command != DETECT_ROW) {
-                    scanf("%d", &col);
-                }
-                if (command == DETECT_SQUARE) {
-                    scanf("%d", &size);
-                }
-                printf("Help already used\n");
-            }
-
-            else if (command == DETECT_ROW) {
-                detect_row(minefield);
-                hint++;
-            }
-
-            else if (command == DETECT_COL) {
-                detect_col(minefield);
-                hint++;
-            }
-
-            else if (command == DETECT_SQUARE) {
-                int row, col, size;
-
-                scanf("%d", &row);
-                scanf("%d", &col);
-                scanf("%d", &size);
-
-                int num = detect_square(minefield, row, col, size);
-                printf("There are %d mine(s) in the square centered", num);
-                printf(" at row %d, column %d of size %d\n", row, col, size);
-                hint++;
-            }
-
-            else if (command == REVEAL_SQUARE) {
-                int row, col;
-
-                scanf("%d", &row);
-                scanf("%d", &col);
-                
-                // If player selects mine, the game ends
-                if (minefield[row][col] == HIDDEN_MINE) {
-                    // If player selects mine on first turn, all mines are shift down a row
-                    if (turn == 1) {
-                        while (minefield[row][col] == HIDDEN_MINE) {
-                            int j = 0;
-                            while (j < SIZE) {
-                                int i = 7;
-                                int last_row = minefield[i][j];
-                                while (i > 0) {
-                                    minefield[i][j] = minefield[i - 1][j];
-                                    i--;
-                                }
-                                minefield[i][j] = last_row;
-                                j++;
-                            }
-                        }
-                        reveal_square(minefield, row, col);
-                    }
-                    else {
-                        win = -1;
-                        printf("Game over\n");
-                    }
-                }
-                else {
-                    reveal_square(minefield, row, col);
-                }
-                turn++;
-            }
-
-            else if (command == REVEAL_RADIAL) {
-                int row, col;
-
-                scanf("%d", &row);
-                scanf("%d", &col);
-
-                // If player selects mine, the game ends
-                if (minefield[row][col] == HIDDEN_MINE) {
-                    // If player selects mine on first turn, all mines are shift down a row
-                    if (turn == 1) {
-                        turn_one_radial(minefield, row, col);
-                    }
-                    else {
-                        win = -1;
-                        printf("Game over\n");
-                    }
-                }
-                else {
-                    reveal_radial(minefield, row, col);
-                }
-                turn++;
-            }
-
-            if (command == GAMEPLAY_MODE) {
-                mode = 1;
-                printf(" gameplay mode activated\n");
-            }
-
-            if (command == DEBUG_MODE) {
-                mode = 0;
-                printf("Debug mode activated\n");
-            }
-
-            if (win_check(minefield) == 1) {
-                printf("Game Won!\n");
-                win = 1;
-            }
-
-            if (mode == 1) {
-                // Prints a frown when game is lost and a smile when game isn't lost
-                if (win == -1) {
-                    printf("xx\n/\\\n    00 01 02 03 04 05 06 07\n");
-                    printf("   -------------------------\n");
-                }
-                else {
-                    printf("..\n\\/\n    00 01 02 03 04 05 06 07\n");
-                    printf("   -------------------------\n");
-                }
-                gameplay(minefield, win);
-            }
-            if (mode == 0) {
-                print_debug_minefield(minefield);
-            }
+        // Ensures only 3 hints will be given and that EOF will end game (command > 0)
+        if (hint == 3 && command < 3 && command > 0) {
+            int no_hint1;
+            scanf("%d", &no_hint1);
+            printf("Help already used\n");
         }
+
+        else if (hint == 3 && command == 3 && command > 0) {
+            int no_hint1, no_hint2, no_hint3;
+            scanf("%d", &no_hint1);
+            scanf("%d", &no_hint2);
+            scanf("%d", &no_hint3);
+            printf("Help already used\n");
+        }
+
+        else if (command == DETECT_ROW) {
+            detect_row(minefield);
+            hint++;
+        }
+
+        else if (command == DETECT_COL) {
+            detect_col(minefield);
+            hint++;
+        }
+
+        else if (command == DETECT_SQUARE) {
+            int row, col, size;
+
+            scanf("%d", &row);
+            scanf("%d", &col);
+            scanf("%d", &size);
+
+            int num = detect_square(minefield, row, col, size);
+            printf("There are %d mine(s) in the square centered", num);
+            printf(" at row %d, column %d of size %d\n", row, col, size);
+            hint++;
+        }
+
+        else if (command == REVEAL_SQUARE) {
+            int row, col;
+
+            scanf("%d", &row);
+            scanf("%d", &col);
+            
+            // If player selects mine on first turn, all mines are shift
+            // down a row
+            if (minefield[row][col] == HIDDEN_MINE && turn == 1) {
+                turn_one_square(minefield, row, col);
+            }
+            // If player selects mine, the game ends
+            else if (minefield[row][col] == HIDDEN_MINE && turn != 1) {
+                win = -1;
+                printf("Game over\n");
+            }
+            else {
+                reveal_square(minefield, row, col);
+            }
+            turn++;
+        }
+
+        else if (command == REVEAL_RADIAL) {
+            int row, col;
+
+            scanf("%d", &row);
+            scanf("%d", &col);
+
+            // If player selects mine, the game ends
+            if (minefield[row][col] == HIDDEN_MINE) {
+                // If player selects mine on first turn, all mines are shift
+                // down a row
+                if (turn == 1) {
+                    turn_one_radial(minefield, row, col);
+                }
+                else {
+                    win = -1;
+                    printf("Game over\n");
+                }
+            }
+            else {
+                reveal_radial(minefield, row, col);
+            }
+            turn++;
+        }
+
+        else if (command == GAMEPLAY_MODE) {
+            mode = 1;
+            printf(" gameplay mode activated\n");
+        }
+
+        else if (command == DEBUG_MODE) {
+            mode = 0;
+            printf("Debug mode activated\n");
+        }
+
+        // EOF (Ctrl+D) and any input that is not 1 to 7 will end the game when entered
         else {
+            win = -2;
+        }
+
+        if (win_check(minefield) == 1) {
+            printf("Game Won!\n");
             win = 1;
+        }
+
+        if (mode == 1 && command > 0) {
+            // Prints a frown when game is lost and a smile when game isn't lost
+            if (win == -1) {
+                printf("xx\n/\\\n    00 01 02 03 04 05 06 07\n");
+                printf("   -------------------------\n");
+            }
+            else {
+                printf("..\n\\/\n    00 01 02 03 04 05 06 07\n");
+                printf("   -------------------------\n");
+            }
+            gameplay(minefield, win);
+        }
+        if (mode == 0 && command > 0) {
+            print_debug_minefield(minefield);
         }
 
     }
@@ -635,6 +623,22 @@ void reveal_radial(int minefield[SIZE][SIZE], int row, int col) {
             i++;
         }
     }
+}
+void turn_one_square(int minefield[SIZE][SIZE], int row, int col) {
+    while (minefield[row][col] == HIDDEN_MINE) {
+        int j = 0;
+        while (j < SIZE) {
+            int i = 7;
+            int last_row = minefield[i][j];
+            while (i > 0) {
+                minefield[i][j] = minefield[i - 1][j];
+                i--;
+            }
+            minefield[i][j] = last_row;
+            j++;
+        }
+    }
+    reveal_square(minefield, row, col);
 }
 void turn_one_radial(int minefield[SIZE][SIZE], int row, int col) {
     while (minefield[row][col] == HIDDEN_MINE) {
